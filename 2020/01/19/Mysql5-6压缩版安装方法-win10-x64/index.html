@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Mysql5.6压缩版安装方法(win10 x64) |  梦开始的地方
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="梦开始的地方" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Mysql5-6压缩版安装方法-win10-x64" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Mysql5.6压缩版安装方法(win10 x64)
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/01/19/Mysql5-6%E5%8E%8B%E7%BC%A9%E7%89%88%E5%AE%89%E8%A3%85%E6%96%B9%E6%B3%95-win10-x64/" class="article-date">
+  <time datetime="2020-01-19T12:16:47.000Z" itemprop="datePublished">2020-01-19</time>
+</a>
+      
+      
+    </div>
+    
+
+    
+    
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <ol>
+<li><p>首先去官网<a href="https://dev.mysql.com/downloads/file/?id=480303下载压缩包并解压，不赘述" target="_blank" rel="noopener">https://dev.mysql.com/downloads/file/?id=480303下载压缩包并解压，不赘述</a></p>
+</li>
+<li><p>用<strong>管理员权限</strong>打开命令行，（这里可以右键开始菜单找到，或者在C:\Windows\System32找到cmd并右键选择以管理员权限打开</p>
+<blockquote>
+<p><strong>这里必须用管理员权限，不然无法安装mysql服务</strong></p>
+</blockquote>
+</li>
+<li><p>解压完我们进入目录，可以看到有一个mydefault.ini，右键他，用记事本打开，把[mysqld]中的basedir设为mysql的安装目录，datadir设为安装目录下的data，port设为3306（约定俗成的端口，当然也可以设为其他的未被占用的端口），添加</p>
+<p>character-set-server=utf8设置字符集（不然表内有汉字可能会报错）和default-storage-engine=INNODB设置默认存储引擎</p>
+<blockquote>
+<p>注意这里要把提到的三项前面的#删掉，#的功能是把这一行注释掉</p>
+</blockquote>
+<p>然后另存为my.ini文件，注意保存类型为<strong>所有文件</strong>，编码选择<strong>ANSI</strong> ，不然会出错。</p>
+</li>
+<li><p>在管理员命令行中切换到bin目录下，如果你的mysql解压到了C盘以外的位置，切换磁盘需要先输入X：敲回车，比如我安装在了D盘，需要先敲“D：”，再cd进我需要的目录</p>
+</li>
+<li><p>进入了bin目录， 输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld -install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意，是mysqld，不要漏打最后的字母d</strong></p>
+</blockquote>
+</li>
+<li><p>看到了命令行提示<code>Service successfully installed</code>即为服务已经安装成功，再输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net start mysql</span><br></pre></td></tr></table></figure>
+
+<p>启动mysql服务，如要以root身份打开mysql，输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p</span><br></pre></td></tr></table></figure>
+
+<p>每次都要cd进bin目录再输入实在太繁琐了，我们来把这个文件放进环境变量吧：</p>
+<p>右键“此电脑”，单机“属性”-&gt;”高级系统设置”-&gt;“环境变量”，在系统变量中找到path一项点击编辑，把你的bin目录绝对路径添加进去就OK了，以后可以打开cmd直接敲mysql -u root -p了。</p>
+</li>
+</ol>
+
+      
+      <!-- 打赏 -->
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/01/19/Mysql5-6%E5%8E%8B%E7%BC%A9%E7%89%88%E5%AE%89%E8%A3%85%E6%96%B9%E6%B3%95-win10-x64/" data-id="ck5kzs8o40001sku42e4rbjy8"
+        class="article-share-link">分享</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/01/19/%E5%9C%A8win10%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%AE%89%E8%A3%85vagrant%E8%99%9A%E6%8B%9F%E6%9C%BA/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            在win10环境下安装vagrant虚拟机
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/05/23/SpringBoot-Mybatis%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AA%E6%95%B0%E6%8D%AE%E6%BA%90/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">SpringBoot+Mybatis配置多个数据源</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  
+  
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2015-2020
+        Kirby Hao
+      </li>
+      <li>
+        
+          Powered by
+        
+        
+        <a href="https://hexo.io" target="_blank">Hexo</a> Theme <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+    
+    <aside class="sidebar">
+      
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="梦开始的地方"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">目录</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i></p>
+  <div class="reward-box">
+    
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+			onClick: (e) => {
+      	document.getElementById(e.target.innerText).scrollIntoView()
+      	return false;
+    	}
+    });
+  </script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: false
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  
+  
+
+  </div>
+</body>
+
+</html>

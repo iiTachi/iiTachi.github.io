@@ -78,32 +78,32 @@
       
       <h2 id="软件测试技术第二次实验报告"><a href="#软件测试技术第二次实验报告" class="headerlink" title="软件测试技术第二次实验报告"></a>软件测试技术第二次实验报告</h2><h3 id="一、-需求分析（描述具体需求）"><a href="#一、-需求分析（描述具体需求）" class="headerlink" title="一、 需求分析（描述具体需求）"></a>一、 需求分析（描述具体需求）</h3><p>“软件测试名单.xlsx” contains information about the students, and <a href="http://121.193.130.195:8800" target="_blank" rel="noopener">http://121.193.130.195:8800</a> can view someone’s information after logging in (student id as username, the last 6 digits of student id as password). Please check each record in the excel to make sure that each student’s information is consistent with the information on the website.</p>
 <h3 id="二、-概要设计（简单描述设计思路）"><a href="#二、-概要设计（简单描述设计思路）" class="headerlink" title="二、 概要设计（简单描述设计思路）"></a>二、 概要设计（简单描述设计思路）</h3><p>观察“名单”中大概有一百多组数据，第一直觉是使用junit参数化测试来完成。决定开始之后，首先就是配置运行环境，我选择了Interllij IDEA来完成本次试验，新建maven项目，配置groupId和artifactId:</p>
-<p><img src="wps3.jpg" alt="img"> </p>
+<p><img src="/images/wps3.jpg" alt="img"> </p>
 <p>配置依赖，从maven仓库重查到selenium3.9.1的地址并配置如下：</p>
-<p><img src="wps4.jpg" alt="img"> </p>
+<p><img src="/images/wps4.jpg" alt="img"> </p>
 <h3 id="三、-详细设计（详细描述具体如何实现，附代码及说明）"><a href="#三、-详细设计（详细描述具体如何实现，附代码及说明）" class="headerlink" title="三、 详细设计（详细描述具体如何实现，附代码及说明）"></a>三、 详细设计（详细描述具体如何实现，附代码及说明）</h3><p>进入代码实现阶段，思路是由王老师给出的test文件进行一定的修改，加以参数化测试的注解来完成此次试验任务。首先研究给定的网站，</p>
-<p><img src="wps5.jpg" alt="img"> </p>
+<p><img src="/images/wps5.jpg" alt="img"> </p>
 <p>发现，输入框id和password由属性name唯一标识，做实验的时候button没有id属性，我选择了通过css选择器来选择type属性为submit的表单提交按钮 。</p>
-<p><img src="wps6.jpg" alt="img"> </p>
+<p><img src="/images/wps6.jpg" alt="img"> </p>
 <p>这样，第一个界面的所有需要的网页元素都已准备好了，然后我们想要用程序来操作浏览器，需要对应的驱动，由于之前有过类似的编程经历且下载过chromedriver，所以我选择沿用chrome来进行测试，配置驱动的路径和驱动的类如下，</p>
-<p><img src="wps7.jpg" alt="img"> </p>
+<p><img src="/images/wps7.jpg" alt="img"> </p>
 <p>经过几次参数化测试之后，我发现每一组用例都弹出一个浏览器框很不人性化，查询资料得知chrome支持无gui自动测试，配置如下：</p>
-<p><img src="wps8.jpg" alt="img"> </p>
+<p><img src="/images/wps8.jpg" alt="img"> </p>
 <p>这样new出来的对象driver就可以不再弹出浏览器窗口而继续完成测试了。再设置了baseurl和访问间隔之后，差不多就可以开始测试了。</p>
 <p>由于选用的参数化测试，要在测试类前面加上注解@RunWith(Parameterized.class)，添加私有属性以及对应的构造方法：</p>
-<p><img src="wps9.jpg" alt="img"> </p>
+<p><img src="/images/wps9.jpg" alt="img"> </p>
 <p>在@Before的setUp方法中完成驱动的配置，以及baseurl 的设定：</p>
-<p><img src="wps10.jpg" alt="img"> </p>
+<p><img src="/images/wps10.jpg" alt="img"> </p>
 <p>在@Parameterized.Parameters中，添加我们本次的测试用例组，在这里我没有使用相应接口从excel中取出数据，而是用了一些复制粘贴全局替换的小技巧暴力取出数据（好在数据量不是特别大），</p>
-<p><img src="wps11.jpg" alt="img"> </p>
+<p><img src="/images/wps11.jpg" alt="img"> </p>
 <p>然后进行断言比较时，我们发现我们还需要从网站上获取对应的数据，手动登录网站，观察到每个学生显示的信息有三条，分别由id：student-id，student-name，student-git唯一标识，由于id是作为登录账号的，不可能会出问题，所以我选择只断言name和git两项信息。</p>
-<p><img src="wps12.jpg" alt="img"> </p>
-<p><img src="wps13.jpg" alt="img"> </p>
+<p><img src="/images/wps12.jpg" alt="img"> </p>
+<p><img src="/images/wps13.jpg" alt="img"> </p>
 <p>在@Test注解下的testSCS方法中写下如上代码，注意点是findElement()获取到的是WebElement对象，想要转化为字符串需要调用getText()方法。</p>
 <h3 id="四、-调试分析（在实验过程中遇到的问题以及如何解决）"><a href="#四、-调试分析（在实验过程中遇到的问题以及如何解决）" class="headerlink" title="四、 调试分析（在实验过程中遇到的问题以及如何解决）"></a>四、 调试分析（在实验过程中遇到的问题以及如何解决）</h3><p>问题一，通过class找不到提交按钮button，由于做实验的时候发现没有出现id，便决定使用className来定位提交按钮，测试后发现找不到这个element，不得不另辟蹊径，选择了css selector来选择type为submit的按钮，终于定位到了这个元素。助教学长加上的id以后可以直接通过By.id访问。</p>
 <p>问题二，解决掉所有bug之后开始参数化测试，发现每组用例都会弹出一个浏览器框，特别反人类，我记得python对应部分有一个支持selenium的无界面自动化测试工具phantomJS，查询资料后得知该工具已停止维护，而且chrome5.x以后同样支持无界面自动化测试了，查询到了使用方法并应用在代码中。</p>
 <h3 id="五、-测试结果（描述输入和输出）"><a href="#五、-测试结果（描述输入和输出）" class="headerlink" title="五、 测试结果（描述输入和输出）"></a>五、 测试结果（描述输入和输出）</h3><p>代码编辑完成，进行单元测试，可以看到143组用例全部运行成功，说明excel中的数据和网站上一致。</p>
-<p><img src="wps14.jpg" alt="img"> </p>
+<p><img src="/images/wps14.jpg" alt="img"> </p>
 <p>很完美的运行结果，成功的keep the bar green</p>
 
       

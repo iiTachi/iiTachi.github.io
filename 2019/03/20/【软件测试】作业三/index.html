@@ -76,7 +76,7 @@
       
 
       
-      <h2 id="作业3"><a href="#作业3" class="headerlink" title="作业3"></a>作业3</h2><h3 id="a）"><a href="#a）" class="headerlink" title="a）"></a>a）</h3><p><img src="hw3_1.png" alt="hw3_1"></p>
+      <h2 id="作业3"><a href="#作业3" class="headerlink" title="作业3"></a>作业3</h2><h3 id="a）"><a href="#a）" class="headerlink" title="a）"></a>a）</h3><p><img src="/images/hw3_1.png" alt="hw3_1"></p>
 <hr>
 <h3 id="b"><a href="#b" class="headerlink" title="b)"></a>b)</h3><p>观察两组测试用例，t1用例n=3，t2用例n=5，若想使t2更容易发现故障，只需要让故障出现在第三次循环到第五次循环之间即可。通过对程序预期结果的分析，n=3时找出的素数集为｛2，3，5｝，n=5时找出的素数集为｛2，3，5，7，11｝；发现t1遍历到的合数（4）可以被2整除，而t2遍历到的合数（4，6，8，9，10）中，只有9不能被2整除，可以在此做文章。将源代码中下面的代码</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= numPrimes-<span class="number">1</span>; i++)&#123;   </span><br><span class="line">    <span class="comment">// for each previous prime.</span></span><br><span class="line">    <span class="keyword">if</span> (isDivisible (primes[i], curPrime))&#123;  </span><br><span class="line">        <span class="comment">// Found a divisor, curPrime is not prime.</span></span><br><span class="line">        isPrime = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// out of loop through primes.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -118,7 +118,7 @@
 <p>综上，TR = ｛[4,5,4]，[5,4,5]，[10,11,10]，[11,10,11]，[1,2,9,10,12]，[2,3,4,7,2]，[3,4,7,2,3]，[4,7,2,3,4]，[2,3,4,7,8,2]，[4,7,8,2,3,4]，[7,8,2,3,4,7]，[8,2,3,4,7,8]，[2,3,4,5,6,7,2]，[3,4,5,6,7,2,3]，[4,5,6,7,2,3,4]，[5,6,7,2,3,4,5]，[6,7,2,3,4,5,6]，[7,2,3,4,5,6,7]，[2,3,4,5,6,7,8,2]，[3,4,5,6,7,8,2,3]，[4,5,6,7,8,2,3,4]，[5,6,7,8,2,3,4,5]，[5,6,7,2,9,10,12]，[5,4,7,2,9,10,12]，[6,7,8,2,9,10,12]，[6,7,8,2,3,4,5,6]，[7,8,2,3,4,5,6,7]，[8,2,3,4,5,6,7,8]，[1,2,3,4,5,6,7,8]，[3,4,5,6,7,2,9,10]，[3,4,7,8,2,9,10,11]，[3,4,7,8,2,9,10,12]，[4,5,6,7,2,9,10,11]，[4,5,6,7,2,9,10,12]，[5,4,7,8,2,9,10,11]，[5,4,7,8,2,9,10,12]，[3,4,5,6,7,8,2,9,10,11]，[3,4,5,6,7,8,2,9,10,12]｝</p>
 <hr>
 <p>设计用例分别令n=1，3，5即可完成主路径覆盖</p>
-<p><img src="hw3_2.png" alt="hw3_2"></p>
+<p><img src="/images/hw3_2.png" alt="hw3_2"></p>
 <p>可以看到，右侧覆盖率达到100%</p>
 <p>代码已上传Github，地址：<a href="https://github.com/iiTachi/TriangleProgram" target="_blank" rel="noopener">https://github.com/iiTachi/TriangleProgram</a></p>
 <p>博客地址：<a href="https://iitachi.github.io" target="_blank" rel="noopener">https://iitachi.github.io</a></p>

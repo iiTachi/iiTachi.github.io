@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="description" content="Briefly describe an error from your past projects that you have recently completed or an error from other projects which impress you most. State the reason, impact of the error , how did you find it and how to fix it." />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    【软件测试】作业一 |  梦开始的地方
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="梦开始的地方" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-【软件测试】作业一" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  【软件测试】作业一
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%80/" class="article-date">
+  <time datetime="2019-03-20T05:37:50.000Z" itemprop="datePublished">2019-03-20</time>
+</a>
+      
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="作业1"><a href="#作业1" class="headerlink" title="作业1"></a>作业1</h2><h3 id="Github主页URL：https-github-com-iiTachi"><a href="#Github主页URL：https-github-com-iiTachi" class="headerlink" title="Github主页URL：https://github.com/iiTachi/"></a>Github主页URL：<a href="https://github.com/iiTachi/" target="_blank" rel="noopener">https://github.com/iiTachi/</a></h3><hr>
+<h3 id="近期Debug经历"><a href="#近期Debug经历" class="headerlink" title="近期Debug经历"></a>近期Debug经历</h3><p>近期困扰我最久的问题是web前后端分离开发中（Spring Boot + Vue）的跨域问题。</p>
+<p>编码完成进行本地测试时，发现前端无法接收到后端传输的数据（界面的数据显示为空白），首先通过编写单元测试检查是否为DAO层和Service层出了问题，排除该层错误；使用postman测试接口，依然可以请求到数据，排除Controller层问题。至此，我非常费解，问题究竟出在哪里，通过阅读控制台报错信息并查阅相关资料得知是跨域问题导致的前后端通信问题。</p>
+<p>首先是在后端拦截器Interceptor类中的preHandle方法中添加响应头（该方法作用于处理请求之前），设置允许的源，允许的请求方法等，如图15-17行（本地调试暂将源设为允许所有源请求）：</p>
+<p><img src="hw1_1.png" alt="hw1_1"></p>
+<p>重新运行项目，仍然无法取得后端数据，由此认为前端代码也应当进行修改，查阅相关资料后尝试解决方案一：设置代理，如图所示：</p>
+<p><img src="hw1_2.png" alt="hw1_2"></p>
+<p>为后端程序运行的端口设置代理为api，并将api的url写成api/xxxxxx，报错信息发生了良性变化（具体变化忘记了），说明这个修改是有一定成效的，但仍然无法拿到后端数据，尝试解决方案二：更换端口，这时瞎折腾了一番，前端不变后端改变了端口，后端不变前端换端口等等，仍然无效；在=再查资料得到一种方案，方案三：在方案一的基础上，修改配置文件中的host项，将原本的“localhost”改为0.0.0.0：</p>
+<p><img src="hw1_3.png" alt="hw1_3"></p>
+<p>再运行终于成功，又深入查了一下资料，这个是vue框架内部的某个机理，写成localhost不会成功，需要写成0.0.0.0才可以（至少本地测试环境是这样的结论，暂未进行部署上线，故没有发现线上环境出现的错误）。</p>
+
+      
+      <!-- 打赏 -->
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%80/" data-id="ck5kv0nax00042su42gczdnu9"
+        class="article-share-link">分享</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Software-Testing/" rel="tag">Software Testing</a></li></ul>
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%BA%8C/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            【软件测试】作业二
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/12/19/Spring-boot-Vue%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Spring boot + Vue解决跨域问题</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  
+  
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2015-2020
+        Kirby Hao
+      </li>
+      <li>
+        
+          Powered by
+        
+        
+        <a href="https://hexo.io" target="_blank">Hexo</a> Theme <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+    
+    <aside class="sidebar">
+      
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="梦开始的地方"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">目录</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i></p>
+  <div class="reward-box">
+    
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+			onClick: (e) => {
+      	document.getElementById(e.target.innerText).scrollIntoView()
+      	return false;
+    	}
+    });
+  </script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: false
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  
+  
+
+  </div>
+</body>
+
+</html>

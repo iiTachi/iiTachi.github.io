@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>SpringBoot+Mybatis配置多个数据源</title>
+    <url>/2019/05/23/SpringBoot-Mybatis%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AA%E6%95%B0%E6%8D%AE%E6%BA%90/</url>
+    <content><![CDATA[<p>SpringBoot+Mybatis配置多个数据源</p>
+<p>首先放上我项目使用的环境版本：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">springboot版本：2.1.5.RELEASE</span><br><span class="line">mybatis版本：mybatis-spring-boot-starter2.0.1</span><br><span class="line">jdk版本：2.0.1</span><br><span class="line">maven：4.0.0</span><br></pre></td></tr></table></figure>
+
+<p>使用的依赖（pom.xml）：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;dependencies&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;</span><br><span class="line">    &lt;&#x2F;dependency&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;org.mybatis.spring.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;mybatis-spring-boot-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;version&gt;2.0.1&lt;&#x2F;version&gt;</span><br><span class="line">    &lt;&#x2F;dependency&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;mysql&lt;&#x2F;groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;mysql-connector-java&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;scope&gt;runtime&lt;&#x2F;scope&gt;</span><br><span class="line">    &lt;&#x2F;dependency&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">    &lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;&#x2F;dependencies&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>接下来就要进行代码的配置了：</p>
+<p><code>application.properties</code>:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># datasource1</span><br><span class="line">spring.datasource.lenovo.driverClassName&#x3D;com.mysql.jdbc.Driver</span><br><span class="line">spring.datasource.lenovo.jdbcUrl&#x3D;jdbc:mysql:&#x2F;&#x2F;192.168.33.10:3306&#x2F;lenovo?serverTimezone&#x3D;UTC&amp;useUnicode&#x3D;true&amp;characterEncoding&#x3D;UTF8&amp;useSSL&#x3D;false</span><br><span class="line">spring.datasource.lenovo.username&#x3D;root</span><br><span class="line">spring.datasource.lenovo.password&#x3D;root</span><br><span class="line"></span><br><span class="line"># datasource2</span><br><span class="line">spring.datasource.github.driverClassName&#x3D;com.mysql.jdbc.Driver</span><br><span class="line">spring.datasource.github.jdbcUrl&#x3D;jdbc:mysql:&#x2F;&#x2F;192.168.33.10:3306&#x2F;github?serverTimezone&#x3D;UTC&amp;useUnicode&#x3D;true&amp;characterEncoding&#x3D;UTF8&amp;useSSL&#x3D;false</span><br><span class="line">spring.datasource.github.username&#x3D;root</span><br><span class="line">spring.datasource.github.password&#x3D;root</span><br></pre></td></tr></table></figure>
+
+<p>使用不同的前缀来配置多个数据源，需要注意的是这里需要写jdbcUrl，写成url可能会报错。</p>
+<p>接下来，在springboot的入口类关闭掉一些自动配置，这样就可以自定义配置文件，让springboot按照我们的意愿进行配置了：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span>(exclude = &#123;DataSourceAutoConfiguration<span class="class">.<span class="keyword">class</span>,</span></span><br><span class="line"><span class="class"><span class="title">DataSourceTransactionManagerAutoConfiguration</span>.<span class="title">class</span>, <span class="title">MybatisAutoConfiguration</span>.<span class="title">class</span>&#125;)</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来，为每个数据源新建一个配置类（我有两个数据源，就新建两个类）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="comment">// basePackages为mapper接口类的位置</span></span><br><span class="line"><span class="meta">@MapperScan</span>(basePackages = <span class="string">"com.example.demo.github.mapper"</span>, sqlSessionFactoryRef = <span class="string">"githubSqlSessionFactory"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">githubDataSourceConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"githubDataSource"</span>)</span><br><span class="line">    <span class="comment">//"spring.datasource.github"是配置文件中使用的前缀</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties</span>(<span class="string">"spring.datasource.github"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">masterDataSource</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> DataSourceBuilder.create().build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"githubSqlSessionFactory"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">sqlSessionFactory</span><span class="params">(@Qualifier(<span class="string">"githubDataSource"</span>)</span> DataSource githubData) <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        SqlSessionFactoryBean sessionFactoryBean = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">        sessionFactoryBean.setDataSource(githubData);</span><br><span class="line">        sessionFactoryBean.setMapperLocations(<span class="keyword">new</span> PathMatchingResourcePatternResolver()</span><br><span class="line">                .getResources(<span class="string">"classpath:/mapper/GithubMapper.xml"</span>));</span><br><span class="line">        <span class="comment">//需要注意的是，这里的"classpath:/mapper/GithubMapper.xml"需要从resources中扫描xml文件，如果放在java包下，会报错</span></span><br><span class="line">        <span class="keyword">return</span> sessionFactoryBean.getObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@MapperScan</span>(basePackages = <span class="string">"com.example.demo.lenovo.mapper"</span>, sqlSessionFactoryRef = <span class="string">"lenovoSqlSessionFactory"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">lenovoDataSourceConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Primary</span></span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"lenovoDataSource"</span>)</span><br><span class="line">    <span class="meta">@ConfigurationProperties</span>(<span class="string">"spring.datasource.lenovo"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">masterDataSource</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> DataSourceBuilder.create().build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"lenovoSqlSessionFactory"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">sqlSessionFactory</span><span class="params">(@Qualifier(<span class="string">"lenovoDataSource"</span>)</span> DataSource lenovoData) <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        SqlSessionFactoryBean sessionFactoryBean = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">        sessionFactoryBean.setDataSource(lenovoData);</span><br><span class="line">        sessionFactoryBean.setMapperLocations(<span class="keyword">new</span> PathMatchingResourcePatternResolver()</span><br><span class="line">                .getResources(<span class="string">"classpath:/mapper/StaffMapper.xml"</span>));</span><br><span class="line">        <span class="keyword">return</span> sessionFactoryBean.getObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意一定要把mapper目录放在resources下才能成功的扫描</p>
+<p>此外，需要注意mapper的方法接口要与xml中实现的方法id对应上，注意xml一定不能有错误，任何错误都可能会导致无法生成bean导致springboot启动失败</p>
+<p>正常的controller、service、mapper、model想必也不用多说，大家都会的，值得注意的一点是关闭了springboot一些自动配置之后，需要在serviceImpl类中追加@Service(“XxxService”)注解，否则可能会无法Autowire</p>
+]]></content>
+      <tags>
+        <tag>spring</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【软件测试】实验二</title>
+    <url>/2019/03/26/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E5%AE%9E%E9%AA%8C%E4%BA%8C/</url>
+    <content><![CDATA[<h2 id="软件测试技术第二次实验报告"><a href="#软件测试技术第二次实验报告" class="headerlink" title="软件测试技术第二次实验报告"></a>软件测试技术第二次实验报告</h2><h3 id="一、-需求分析（描述具体需求）"><a href="#一、-需求分析（描述具体需求）" class="headerlink" title="一、 需求分析（描述具体需求）"></a>一、 需求分析（描述具体需求）</h3><p>“软件测试名单.xlsx” contains information about the students, and <a href="http://121.193.130.195:8800" target="_blank" rel="noopener">http://121.193.130.195:8800</a> can view someone’s information after logging in (student id as username, the last 6 digits of student id as password). Please check each record in the excel to make sure that each student’s information is consistent with the information on the website.</p>
+<h3 id="二、-概要设计（简单描述设计思路）"><a href="#二、-概要设计（简单描述设计思路）" class="headerlink" title="二、 概要设计（简单描述设计思路）"></a>二、 概要设计（简单描述设计思路）</h3><p>观察“名单”中大概有一百多组数据，第一直觉是使用junit参数化测试来完成。决定开始之后，首先就是配置运行环境，我选择了Interllij IDEA来完成本次试验，新建maven项目，配置groupId和artifactId:</p>
+<p><img src="wps3.jpg" alt="img"> </p>
+<p>配置依赖，从maven仓库重查到selenium3.9.1的地址并配置如下：</p>
+<p><img src="wps4.jpg" alt="img"> </p>
+<h3 id="三、-详细设计（详细描述具体如何实现，附代码及说明）"><a href="#三、-详细设计（详细描述具体如何实现，附代码及说明）" class="headerlink" title="三、 详细设计（详细描述具体如何实现，附代码及说明）"></a>三、 详细设计（详细描述具体如何实现，附代码及说明）</h3><p>进入代码实现阶段，思路是由王老师给出的test文件进行一定的修改，加以参数化测试的注解来完成此次试验任务。首先研究给定的网站，</p>
+<p><img src="wps5.jpg" alt="img"> </p>
+<p>发现，输入框id和password由属性name唯一标识，做实验的时候button没有id属性，我选择了通过css选择器来选择type属性为submit的表单提交按钮 。</p>
+<p><img src="wps6.jpg" alt="img"> </p>
+<p>这样，第一个界面的所有需要的网页元素都已准备好了，然后我们想要用程序来操作浏览器，需要对应的驱动，由于之前有过类似的编程经历且下载过chromedriver，所以我选择沿用chrome来进行测试，配置驱动的路径和驱动的类如下，</p>
+<p><img src="wps7.jpg" alt="img"> </p>
+<p>经过几次参数化测试之后，我发现每一组用例都弹出一个浏览器框很不人性化，查询资料得知chrome支持无gui自动测试，配置如下：</p>
+<p><img src="wps8.jpg" alt="img"> </p>
+<p>这样new出来的对象driver就可以不再弹出浏览器窗口而继续完成测试了。再设置了baseurl和访问间隔之后，差不多就可以开始测试了。</p>
+<p>由于选用的参数化测试，要在测试类前面加上注解@RunWith(Parameterized.class)，添加私有属性以及对应的构造方法：</p>
+<p><img src="wps9.jpg" alt="img"> </p>
+<p>在@Before的setUp方法中完成驱动的配置，以及baseurl 的设定：</p>
+<p><img src="wps10.jpg" alt="img"> </p>
+<p>在@Parameterized.Parameters中，添加我们本次的测试用例组，在这里我没有使用相应接口从excel中取出数据，而是用了一些复制粘贴全局替换的小技巧暴力取出数据（好在数据量不是特别大），</p>
+<p><img src="wps11.jpg" alt="img"> </p>
+<p>然后进行断言比较时，我们发现我们还需要从网站上获取对应的数据，手动登录网站，观察到每个学生显示的信息有三条，分别由id：student-id，student-name，student-git唯一标识，由于id是作为登录账号的，不可能会出问题，所以我选择只断言name和git两项信息。</p>
+<p><img src="wps12.jpg" alt="img"> </p>
+<p><img src="wps13.jpg" alt="img"> </p>
+<p>在@Test注解下的testSCS方法中写下如上代码，注意点是findElement()获取到的是WebElement对象，想要转化为字符串需要调用getText()方法。</p>
+<h3 id="四、-调试分析（在实验过程中遇到的问题以及如何解决）"><a href="#四、-调试分析（在实验过程中遇到的问题以及如何解决）" class="headerlink" title="四、 调试分析（在实验过程中遇到的问题以及如何解决）"></a>四、 调试分析（在实验过程中遇到的问题以及如何解决）</h3><p>问题一，通过class找不到提交按钮button，由于做实验的时候发现没有出现id，便决定使用className来定位提交按钮，测试后发现找不到这个element，不得不另辟蹊径，选择了css selector来选择type为submit的按钮，终于定位到了这个元素。助教学长加上的id以后可以直接通过By.id访问。</p>
+<p>问题二，解决掉所有bug之后开始参数化测试，发现每组用例都会弹出一个浏览器框，特别反人类，我记得python对应部分有一个支持selenium的无界面自动化测试工具phantomJS，查询资料后得知该工具已停止维护，而且chrome5.x以后同样支持无界面自动化测试了，查询到了使用方法并应用在代码中。</p>
+<h3 id="五、-测试结果（描述输入和输出）"><a href="#五、-测试结果（描述输入和输出）" class="headerlink" title="五、 测试结果（描述输入和输出）"></a>五、 测试结果（描述输入和输出）</h3><p>代码编辑完成，进行单元测试，可以看到143组用例全部运行成功，说明excel中的数据和网站上一致。</p>
+<p><img src="wps14.jpg" alt="img"> </p>
+<p>很完美的运行结果，成功的keep the bar green</p>
+]]></content>
+      <tags>
+        <tag>Software Testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【软件测试】作业三</title>
+    <url>/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%89/</url>
+    <content><![CDATA[<h2 id="作业3"><a href="#作业3" class="headerlink" title="作业3"></a>作业3</h2><h3 id="a）"><a href="#a）" class="headerlink" title="a）"></a>a）</h3><p><img src="hw3_1.png" alt="hw3_1"></p>
+<hr>
+<h3 id="b"><a href="#b" class="headerlink" title="b)"></a>b)</h3><p>观察两组测试用例，t1用例n=3，t2用例n=5，若想使t2更容易发现故障，只需要让故障出现在第三次循环到第五次循环之间即可。通过对程序预期结果的分析，n=3时找出的素数集为｛2，3，5｝，n=5时找出的素数集为｛2，3，5，7，11｝；发现t1遍历到的合数（4）可以被2整除，而t2遍历到的合数（4，6，8，9，10）中，只有9不能被2整除，可以在此做文章。将源代码中下面的代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= numPrimes-<span class="number">1</span>; i++)&#123;   </span><br><span class="line">    <span class="comment">// for each previous prime.</span></span><br><span class="line">    <span class="keyword">if</span> (isDivisible (primes[i], curPrime))&#123;  </span><br><span class="line">        <span class="comment">// Found a divisor, curPrime is not prime.</span></span><br><span class="line">        isPrime = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// out of loop through primes.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>替换为：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(isDivisible (<span class="number">2</span>, curPrime))&#123;</span><br><span class="line">    isPrime = <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样t2就会发现t1不能发现的故障了</p>
+<hr>
+<h3 id="c"><a href="#c" class="headerlink" title="c)"></a>c)</h3><p>不进入while循环的用例即可满足要求，t0=(n=1)</p>
+<hr>
+<h3 id="d"><a href="#d" class="headerlink" title="d)"></a>d)</h3><p><strong>节点覆盖</strong>：</p>
+<p>[1，2，3，4，5，6，7，8，2，9，10，11，10，12]</p>
+<p><strong>边覆盖</strong>：</p>
+<p>[(1,2)，(2,3)，(3,4)，(4,5)，(5,4)，(4,7)，(7,8)，(8,2)，(2,9)，(9,10)，(10,11)，(11,10)，(10,12)]（n=3）</p>
+<p>[(1,2)，(2,3)，(3,4)，(4,5)，(5,6)，(6,7)，(7,2)，(2,9)，(9,10)，(10,11)，(11,10)，(10,12)]</p>
+<p><strong>主路径覆盖</strong>：</p>
+<p>先找简单路径</p>
+<p>长度为0：</p>
+<p>[1]，[2]，[3]，[4]，[5]，[6]，[7]，[8]，[9]，[10]，[11]，[12]</p>
+<p>长度为1：</p>
+<p>[1,2]，[2,3]，[2,9]，[3,4]，[4,5]，[4,7]，[5,4]，[5,6]，[6,7]，[7,2]，[7,8]，[8,2]，[9,10]，[10,11]，[10,12]，[11,10]</p>
+<p>长度为2：</p>
+<p>[1,2,3]，[1,2,9]，[2,3,4]，[2,9,10]，[3,4,5]，[3,4,7]，[4,5,4]，[4,5,6]，[4,7,2]，[4,7,8]，[5,4,5]，[5,4,7]，[5,6,7]，[6,7,2]，[6,7,8]，[7,2,3]，[7,2,9]，[7,8,2]，[8,2,3]，[8,2,9]，[9,10,11]，[9,10,12]，[10,11,10]，[11,10,11]，[11,10,12]</p>
+<p>长度为3：</p>
+<p>[1,2,3,4]，[1,2,9,10]，[2,3,4,5]，[2,3,4,7]，[2,9,10,11]，[2,9,10,12]，[3,4,5,6]，[3,4,7,2]，[3,4,7,8]，[4,5,6,7]，[4,7,2,3]，[4,7,2,9]，[4,7,8,2]，[5,4,7,2]，[5,4,7,8]，[5,6,7,2]，[5,6,7,8]，[6,7,2,3]，[6,7,2,9]，[6,7,8,2]，[7,8,2,3]，[7,8,2,9]，[8,2,3,4]，[8,2,9,10]</p>
+<p>长度为4：</p>
+<p>[1,2,3,4,5]，[1,2,3,4,7]，[1,2,9,10,11]，[1,2,9,10,12]!，[2,3,4,5,6]，[2,3,4,7,2]，[2,3,4,7,8]，[3,4,5,6,7]，[3,4,7,8,2]，[3,4,7,2,3]，[3,4,7,2,9]，[4,5,6,7,8]，[4,7,2,3,4]，[4,7,2,9,10]，[4,7,8,2,3]，[4,7,8,2,9]，[5,4,7,8,2]，[5,4,7,2,3]，[5,4,7,2,9]，[5,6,7,8,2]，[5,6,7,2,3]，[5,6,7,2,9]，[6,7,2,3,4]，[6,7,2,9,10]，[6,7,8,2,3]，[6,7,8,2,9]，[8,2,3,4,5]，[8,2,3,4,7]，[8,2,9,10,11]，[8,2,9,10,12]</p>
+<p>长度为5：</p>
+<p>[1,2,3,4,5,6]，[1,2,3,4,7,8]，[1,2,3,4,7,2]，[2,3,4,5,6,7]，[2,3,4,7,8,2]，[2,3,4,7,2,3]，[2,3,4,7,2,9]，[3,4,5,6,7,8]，[3,4,5,6,7,2]，[4,5,6,7,8,2]，[4,5,6,7,2,3]，[4,5,6,7,2,9]，[4,7,2,3,9,10]，[4,7,8,2,3,4]，[4,7,8,2,9,10]，[5,4,7,2,9,10]，[5,4,7,8,2,3]，[5,4,7,8,2,9]，[5,6,7,2,9,10]，[5,6,7,8,2,3]，[5,6,7,8,2,9]，[6,7,2,3,4,5]，[6,7,2,9,10,12]，[6,7,2,9,10,11]，[6,7,8,2,3,4]，[6,7,8,2,9,10]，[7,2,3,4,5,6]，[7,8,2,3,4,7]，[7,8,2,3,4,5]，[7,8,2,9,10,11]，[7,8,2,9,10,12]，[8,2,3,4,5,6]，[8,2,3,4,7,8]</p>
+<p>长度为6：</p>
+<p>[1,2,3,4,5,6,7]，[2,3,4,5,6,7,8]，[2,3,4,5,6,7,2]，[3,4,5,6,7,2,3]，[3,4,5,6,7,8,2]，[3,4,5,6,7,2,9]，[3,4,7,8,2,9,10]，[4,5,6,7,2,3,4]，[4,5,6,7,2,9,10]，[4,5,6,7,8,2,3]，[4,5,6,7,8,2,9]，[4,5,6,7,2,9,10]，[5,6,7,2,3,4,5]，[5,6,7,2,9,10,11]，[5,6,7,2,9,10,12]，[5,6,7,8,2,3,4]，[5,6,7,8,2,9,10]，[5,4,7,2,9,10,11]，[5,4,7,2,9,10,12]，[5,4,7,8,2,9,10]，[6,7,2,3,4,5,6]，[6,7,8,2,3,4,5]，[6,7,8,2,9,10,11]，[6,7,8,2,9,10,12]，[7,2,3,4,5,6,7]，[7,8,2,3,4,5,6]，[8,2,3,4,5,6,7]</p>
+<p>长度为7：</p>
+<p>[1,2,3,4,5,6,7,8]，[2,3,4,5,6,7,8,2]，[3,4,5,6,7,8,2,3]，[3,4,5,6,7,8,2,9]，[3,4,5,6,7,2,9,10]，[3,4,7,8,2,9,10,11]，[3,4,7,8,2,9,10,12]，[4,5,6,7,2,9,10,11]，[4,5,6,7,2,9,10,12]，[4,5,6,7,8,2,3,4]，[4,5,6,7,8,2,9,10]，[5,6,7,8,2,3,4,5]，[5,6,7,8,2,9,10,11]，[5,6,7,8,2,9,10,12]，[5,4,7,8,2,9,10,11]，[5,4,7,8,2,9,10,12]，[6,7,8,2,3,4,5,6]，[7,8,2,3,4,5,6,7]，[8,2,3,4,5,6,7,8]</p>
+<p>长度为8：</p>
+<p>[3,4,5,6,7,8,2,9,10]，[4,5,6,7,8,2,9,10,11]，[4,5,6,7,8,2,9,10,12]</p>
+<p>长度为9：</p>
+<p>[3,4,5,6,7,8,2,9,10,11]，[3,4,5,6,7,8,2,9,10,12]</p>
+<p>综上，TR = ｛[4,5,4]，[5,4,5]，[10,11,10]，[11,10,11]，[1,2,9,10,12]，[2,3,4,7,2]，[3,4,7,2,3]，[4,7,2,3,4]，[2,3,4,7,8,2]，[4,7,8,2,3,4]，[7,8,2,3,4,7]，[8,2,3,4,7,8]，[2,3,4,5,6,7,2]，[3,4,5,6,7,2,3]，[4,5,6,7,2,3,4]，[5,6,7,2,3,4,5]，[6,7,2,3,4,5,6]，[7,2,3,4,5,6,7]，[2,3,4,5,6,7,8,2]，[3,4,5,6,7,8,2,3]，[4,5,6,7,8,2,3,4]，[5,6,7,8,2,3,4,5]，[5,6,7,2,9,10,12]，[5,4,7,2,9,10,12]，[6,7,8,2,9,10,12]，[6,7,8,2,3,4,5,6]，[7,8,2,3,4,5,6,7]，[8,2,3,4,5,6,7,8]，[1,2,3,4,5,6,7,8]，[3,4,5,6,7,2,9,10]，[3,4,7,8,2,9,10,11]，[3,4,7,8,2,9,10,12]，[4,5,6,7,2,9,10,11]，[4,5,6,7,2,9,10,12]，[5,4,7,8,2,9,10,11]，[5,4,7,8,2,9,10,12]，[3,4,5,6,7,8,2,9,10,11]，[3,4,5,6,7,8,2,9,10,12]｝</p>
+<hr>
+<p>设计用例分别令n=1，3，5即可完成主路径覆盖</p>
+<p><img src="hw3_2.png" alt="hw3_2"></p>
+<p>可以看到，右侧覆盖率达到100%</p>
+<p>代码已上传Github，地址：<a href="https://github.com/iiTachi/TriangleProgram" target="_blank" rel="noopener">https://github.com/iiTachi/TriangleProgram</a></p>
+<p>博客地址：<a href="https://iitachi.github.io" target="_blank" rel="noopener">https://iitachi.github.io</a></p>
+]]></content>
+      <tags>
+        <tag>Software Testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【软件测试】作业二</title>
+    <url>/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%BA%8C/</url>
+    <content><![CDATA[<h2 id="作业2"><a href="#作业2" class="headerlink" title="作业2"></a>作业2</h2><ul>
+<li><h3 id="Identity-the-fault"><a href="#Identity-the-fault" class="headerlink" title="Identity the fault"></a>Identity the fault</h3></li>
+</ul>
+<p>第一段代码，应该把for循环中的i&gt;0改为i&gt;=0，原代码中循环进行到i=0的时候会退出循环</p>
+<p>第二段代码，将for循环的条件改为(int i = x.length -1; i &gt;= 0; i–)，原代码中循环从头开始找到第一个0就会退出，不满足功能要求</p>
+<ul>
+<li><h3 id="If-possible-identify-a-test-case-that-does-not-execute-the-fault-Reachability"><a href="#If-possible-identify-a-test-case-that-does-not-execute-the-fault-Reachability" class="headerlink" title="If possible, identify a test case that does not execute the fault. (Reachability)"></a>If possible, identify a test case that does not execute the fault. (Reachability)</h3></li>
+</ul>
+<p>第一段代码，test：x=null; y=5  </p>
+<p>expected=-1 fact=-1 </p>
+<p>fault源于循环，使测试用例不能进入循环即可避免fault（0-1 &lt; 0，不满足进入循环的条件）</p>
+<p>第二段代码，不能找到，</p>
+<p>fault出自整个for循环的设计，本应从后向前遍历，实际却是从前往后，所有用例都要执行初始化，i=0，不能避免fault</p>
+<ul>
+<li><h3 id="If-possible-identify-a-test-case-that-executes-the-fault-but-does-not-result-in-an-error-state"><a href="#If-possible-identify-a-test-case-that-executes-the-fault-but-does-not-result-in-an-error-state" class="headerlink" title="If possible, identify a test case that executes the fault, but does not result in an error state."></a>If possible, identify a test case that executes the fault, but does not result in an error state.</h3></li>
+</ul>
+<p>第一段代码，test：x=[2,3,5]; y=5</p>
+<p>expected=2 fact=2 </p>
+<p>用例进入了循环，但没有运行到出现error的地方就退出循环，没有出现error</p>
+<p>第二段代码，test：x=null</p>
+<p>error在于for循环，不进入循环就可以避免error（0 = 0，不满足进入循环的条件）</p>
+<ul>
+<li><h3 id="If-possible-identify-a-test-case-that-results-in-an-error-but-not-a-failure"><a href="#If-possible-identify-a-test-case-that-results-in-an-error-but-not-a-failure" class="headerlink" title="If possible identify a test case that results in an error, but not a failure"></a>If possible identify a test case that results in an error, but not a failure</h3></li>
+</ul>
+<p>第一段代码，test：x=[2,3,5]; y=6 </p>
+<p>expected=-1 fact=-1(未找到匹配的值)，</p>
+<p>触发了error但没有产生failure（结果满足预期）</p>
+<p>第二段代码，test：x=[1,1,0]</p>
+<p>excepted=2 fact=2</p>
+<p>触发了error但结果满足预期</p>
+]]></content>
+      <tags>
+        <tag>Software Testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【软件测试】作业一</title>
+    <url>/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%80/</url>
+    <content><![CDATA[<h2 id="作业1"><a href="#作业1" class="headerlink" title="作业1"></a>作业1</h2><h3 id="Github主页URL：https-github-com-iiTachi"><a href="#Github主页URL：https-github-com-iiTachi" class="headerlink" title="Github主页URL：https://github.com/iiTachi/"></a>Github主页URL：<a href="https://github.com/iiTachi/" target="_blank" rel="noopener">https://github.com/iiTachi/</a></h3><hr>
+<h3 id="近期Debug经历"><a href="#近期Debug经历" class="headerlink" title="近期Debug经历"></a>近期Debug经历</h3><p>近期困扰我最久的问题是web前后端分离开发中（Spring Boot + Vue）的跨域问题。</p>
+<p>编码完成进行本地测试时，发现前端无法接收到后端传输的数据（界面的数据显示为空白），首先通过编写单元测试检查是否为DAO层和Service层出了问题，排除该层错误；使用postman测试接口，依然可以请求到数据，排除Controller层问题。至此，我非常费解，问题究竟出在哪里，通过阅读控制台报错信息并查阅相关资料得知是跨域问题导致的前后端通信问题。</p>
+<p>首先是在后端拦截器Interceptor类中的preHandle方法中添加响应头（该方法作用于处理请求之前），设置允许的源，允许的请求方法等，如图15-17行（本地调试暂将源设为允许所有源请求）：</p>
+<p><img src="hw1_1.png" alt="hw1_1"></p>
+<p>重新运行项目，仍然无法取得后端数据，由此认为前端代码也应当进行修改，查阅相关资料后尝试解决方案一：设置代理，如图所示：</p>
+<p><img src="hw1_2.png" alt="hw1_2"></p>
+<p>为后端程序运行的端口设置代理为api，并将api的url写成api/xxxxxx，报错信息发生了良性变化（具体变化忘记了），说明这个修改是有一定成效的，但仍然无法拿到后端数据，尝试解决方案二：更换端口，这时瞎折腾了一番，前端不变后端改变了端口，后端不变前端换端口等等，仍然无效；在=再查资料得到一种方案，方案三：在方案一的基础上，修改配置文件中的host项，将原本的“localhost”改为0.0.0.0：</p>
+<p><img src="hw1_3.png" alt="hw1_3"></p>
+<p>再运行终于成功，又深入查了一下资料，这个是vue框架内部的某个机理，写成localhost不会成功，需要写成0.0.0.0才可以（至少本地测试环境是这样的结论，暂未进行部署上线，故没有发现线上环境出现的错误）。</p>
+]]></content>
+      <tags>
+        <tag>Software Testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring boot + Vue解决跨域问题</title>
+    <url>/2018/12/19/Spring-boot-Vue%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h4 id="使用的技术框架"><a href="#使用的技术框架" class="headerlink" title="使用的技术框架"></a>使用的技术框架</h4><ul>
+<li><p>后端：Spring boot</p>
+</li>
+<li><p>前端：Vue.js</p>
+</li>
+</ul>
+<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>本地调试时，前端运行在localhost的8081端口；后台运行在8084端口，前端向后端发送请求的时候，就会出现跨域错误。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>采用反代理的方式，打开config/index.js，在module.exports中的dev加入proxyTable内容:</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">proxyTable: &#123;</span><br><span class="line">      <span class="string">'/api'</span>:&#123;</span><br><span class="line">        target:<span class="string">'http://localhost:8084'</span>,</span><br><span class="line">        changerOrigin:<span class="literal">true</span>,</span><br><span class="line">        pathRewrite:&#123;</span><br><span class="line">          <span class="string">'/api'</span>: <span class="string">''</span>,</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的意思就是把api转化为<code>localhost:8084</code>，所以前端发送请求的时候将localhost：8084写成api就好了，使用代理完成从8081到8084的跨域请求。（localhost写成127.0.0.1更好一些）</p>
+<p>然后，在后端加入对跨域请求url的许可，我将这一部分写入了拦截器：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">response.setHeader(<span class="string">"Access-Control-Allow-Origin"</span>, <span class="string">"*"</span>);</span><br><span class="line">response.setHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"POST, GET, OPTIONS, PUT, DELETE"</span>);</span><br><span class="line">response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"X-Requested-With,Content-Type"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的意思是在给前端的响应头中加入以下几项：</p>
+<ul>
+<li>Access-Control-Allow-Origin：允许访问资源的url，这里我设置为*，即所有url都可以访问；</li>
+<li>Access-Control-Allow-Methods：允许的方法，我设置为POST, GET, OPTIONS, PUT和DELETE；</li>
+<li>如果使用json做前后端交互，还需要加入Access-Control-Allow-Headers：X-Requested-With,Content-Type，并在前端请求时加入option emulateJSON: true</li>
+</ul>
+<p>到这里，我们本地测试的跨域问题就解决啦！前后端跑起来，成功完成请求</p>
+<p>那么这一阶段我们怎么在其他电脑上访问我们的项目呢？</p>
+<h4 id="局域网访问本地项目"><a href="#局域网访问本地项目" class="headerlink" title="局域网访问本地项目"></a>局域网访问本地项目</h4><p>连接同一个局域网并处于同一个子网下，可以直接通过我们的ip地址访问我们的主机，ip可以通过cmd输入ipconfig获取（ipv4地址即可），比如现在我的ip是172.23.79.248，理论上处于172.23.0.1网关下的所有网络都可以通过http:172.23.79.248:8081来访问我的前端项目。</p>
+<p>但是经过测试，并不能行得通，这时我们在访问主机（为讲述方便一下将我的主机成为服务端，将访问服务端的主机称为客户端），客户端打开cmd，输入：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ping 172.23.79.248</span><br></pre></td></tr></table></figure>
+
+<p>得到结果居然是ping的通！也就是说我们可以通过ip找到我们的主机，但是找不到我们的前端项目，怎么办呢？</p>
+<p>再一次打开index.js，将dev中的的host修改为‘0.0.0.0’（原来的内容是’localhost’）,再一次跑起来之后，发现客户端已经可以成功通过网址：172.23.79.248:8081 访问到我们机器上的项目啦！而且由于在本地解决了跨域的问题，前后端联调也没有问题！</p>
+<h4 id="部署到服务器"><a href="#部署到服务器" class="headerlink" title="部署到服务器"></a>部署到服务器</h4><p>暂时还没有将前后端部署到服务器中，未来会进行尝试并写博客来记录踩下的坑。</p>
+]]></content>
+      <tags>
+        <tag>Vue</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>urllib库的常用方法</title>
+    <url>/2018/12/10/urllib%E5%BA%93%E7%9A%84%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<h2 id="发送请求"><a href="#发送请求" class="headerlink" title="发送请求"></a>发送请求</h2><h4 id="urlopen"><a href="#urlopen" class="headerlink" title="urlopen()"></a><strong><em>urlopen()</em></strong></h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">urllib.request.urlopen(url, data=<span class="literal">None</span>, [timeout, ]*, cafile=<span class="literal">None</span>, capath=<span class="literal">None</span>, cadefault=<span class="literal">False</span>, context=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+
+<p>data参数：需要传递一个bytes()类型的数据，如果传递了这个参数，方法不再是GET，而变成了POST；如果要传递一个字典，则应该用urllib.parse模块的urlencode()函数编码</p>
+<p>timeout参数：设置超时时间，超出这个时间没有响应就会抛出异常 </p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#GET请求方法</span></span><br><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"></span><br><span class="line">response = urllib.request.urlopen(<span class="string">'https://www.python.org'</span>)</span><br><span class="line">print(response.read().decode(<span class="string">'utf-8'</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#POST请求方法</span></span><br><span class="line"><span class="keyword">import</span> urllib.parse</span><br><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"></span><br><span class="line">data = bytes(urllib.parse.urlencode(&#123;<span class="string">"world"</span>: <span class="string">"hello"</span>&#125;), encoding=<span class="string">'utf8'</span>)</span><br><span class="line"></span><br><span class="line">response = urllib.request.urlopen(<span class="string">'http://httpbin.org/post'</span>, data=data)</span><br><span class="line">print(response.read())</span><br></pre></td></tr></table></figure>
+
+<p><a href="http://httpbin.org" target="_blank" rel="noopener">http://httpbin.org</a></p>
+<p>网站用来测试POST的数据</p>
+<p>urlopen返回的response是一个HTTPResponse类型的对象，包含read(), readinto(), getheader(name), getheaders(), fileinto()等方法，以及msg, status, version, reason, debuglevel, closed等属性。</p>
+<h6 id="常见status："><a href="#常见status：" class="headerlink" title="常见status："></a>常见status：</h6><table>
+<thead>
+<tr>
+<th>代码</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>200</td>
+<td>成功</td>
+</tr>
+<tr>
+<td>400</td>
+<td>错误请求</td>
+</tr>
+<tr>
+<td>404</td>
+<td>未找到</td>
+</tr>
+<tr>
+<td>405</td>
+<td>方法禁用</td>
+</tr>
+<tr>
+<td>500</td>
+<td>服务器内部错误</td>
+</tr>
+</tbody></table>
+<h4 id="Request"><a href="#Request" class="headerlink" title="Request"></a><strong><em>Request</em></strong></h4><p>若请求中需要加入Headers等信息，可以利用Request类来构建。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">urllib</span>.<span class="title">request</span>.<span class="title">Request</span><span class="params">(url, data=None, headers=&#123;&#125;, origin_req_host=None, unverifiable=False, method=None)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>headers参数用于添加请求头，可以直接在构造时通过headers参数直接构造，也可以调用请求实例的add_header()方法添加；添加请求头最常见的是修改User-Agent来伪装浏览器</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#GET请求方法</span></span><br><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"></span><br><span class="line">request = urllib.request.Request(<span class="string">'https://python.org'</span>)</span><br><span class="line">response = urllib.request.urlopen(request)</span><br><span class="line">print(response.read().decode(<span class="string">'utf-8'</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#POST请求方法</span></span><br><span class="line"><span class="keyword">import</span> urllib.parse</span><br><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"></span><br><span class="line">url = <span class="string">'http://httpbin.org/post'</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">'User-Agent'</span>: <span class="string">'Mozilla/4.0 (compatible;MSIE 5.5; Windows NT)'</span>,</span><br><span class="line">    <span class="string">'Host'</span>: <span class="string">'httpbin.org'</span></span><br><span class="line">&#125;</span><br><span class="line">dict = &#123;</span><br><span class="line">    <span class="string">'name'</span>: <span class="string">'Jerry'</span></span><br><span class="line">&#125;</span><br><span class="line">data = bytes(parse.urlencode(dict), encoding=<span class="string">'utf8'</span>)</span><br><span class="line"></span><br><span class="line">req = request.Request(url=url, data=data, headers=headers, method=<span class="string">'POST'</span>)</span><br><span class="line">response = request.urlopen(req)</span><br><span class="line">print(response.read().decode(<span class="string">'utf-8'</span>))</span><br></pre></td></tr></table></figure>
+
+<h6 id="高级用法："><a href="#高级用法：" class="headerlink" title="高级用法："></a>高级用法：</h6><p>引入OpenerDirector和Handler类来实现高级功能，如处理HTTP响应错误、处理重定向、处理cookies、设置代理、管理密码等。</p>
+<p>思路：用Handler来构建Opener</p>
+<p>例1：处理验证</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> urllib.request <span class="keyword">import</span> HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener</span><br><span class="line"><span class="keyword">from</span> urllib.error <span class="keyword">import</span> URLError</span><br><span class="line"></span><br><span class="line">username = <span class="string">'username'</span></span><br><span class="line">password = <span class="string">'password'</span></span><br><span class="line">url = <span class="string">'http://localhost:8080/'</span></span><br><span class="line"></span><br><span class="line">p = HTTPPasswordMgrWithDefaultRealm()</span><br><span class="line">p.add_password(<span class="literal">None</span>, url, username, password)</span><br><span class="line">auth_handler = HTTPBasicAuthHandler(p)</span><br><span class="line">opener = build_opener(auth_handler)</span><br></pre></td></tr></table></figure>
+
+<p>例2：设置代理</p>
+<p>这里我们在本机9743端口搭建了一个代理，下面使用这个代理进行url访问</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> urllib.request <span class="keyword">import</span> ProxyHandler, build_opener</span><br><span class="line"><span class="keyword">from</span> urllib.error <span class="keyword">import</span> URLError</span><br><span class="line"></span><br><span class="line">proxy_handler = ProxyHandler(&#123;</span><br><span class="line">    <span class="string">'http'</span>: <span class="string">'http://127.0.0.1:9743'</span>,</span><br><span class="line">    <span class="string">'https'</span>: <span class="string">'https://127.0.0.1:9743'</span></span><br><span class="line">&#125;)</span><br><span class="line">opener = build_opener(proxy_handler)</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    response = opener.open(<span class="string">'https://www.baidu.com'</span>)</span><br><span class="line">    print(response.read().decode(<span class="string">'utf-8'</span>))</span><br><span class="line"><span class="keyword">except</span> URLError <span class="keyword">as</span> e:</span><br><span class="line">    print(e.reason)</span><br></pre></td></tr></table></figure>
+
+<p>例3：获取网站的Cookies</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> http.cookiejar, urllib.request</span><br><span class="line"></span><br><span class="line">cookie = http.cookiejar.CookieJar()</span><br><span class="line">handler = urllib.request.HTTPCookieProcessor(cookie)</span><br><span class="line">opener = urllib.request.build_opener(handler)</span><br><span class="line">response = opener.open(<span class="string">'http://www.baidu.com'</span>)</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> cookie:</span><br><span class="line">    print(item.name + <span class="string">" = "</span> + item.value)</span><br></pre></td></tr></table></figure>
+
+<p>若要将cookie存入文件中，则需要将CookieJar换为MozillaCookieJar(后者是前者的子类)，或者换为LWPCookieJar，二者格式不同，效果相似。</p>
+<hr>
+<h2 id="处理异常"><a href="#处理异常" class="headerlink" title="处理异常"></a>处理异常</h2><h4 id="URLError"><a href="#URLError" class="headerlink" title="URLError"></a><strong><em>URLError</em></strong></h4><p>URLError类来自urllib库的error模块，继承自OSError类，是error异常模块的基类，由request模块发生的异常都可以通过捕获这个类来处理。具有一个reason返回错误原因</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> request, error</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    response = request.urlopen(<span class="string">'https://luhao.com/index.html'</span>)</span><br><span class="line">    <span class="keyword">except</span> error.URLError <span class="keyword">as</span> e:</span><br><span class="line">        print(e.reason)</span><br></pre></td></tr></table></figure>
+
+<h4 id="HTTPError"><a href="#HTTPError" class="headerlink" title="HTTPError"></a><strong><em>HTTPError</em></strong></h4><p>是URLError的子类，专门用来处理HTTP请求错误，有三个属性：code返回HTTP状态码；reason返回错误信息；headers返回请求头。</p>
+<h2 id="解析链接"><a href="#解析链接" class="headerlink" title="解析链接"></a>解析链接</h2><h4 id="urlparse"><a href="#urlparse" class="headerlink" title="urlparse()"></a><strong><em>urlparse()</em></strong></h4><p>实现url的识别和分段，有三个参数：urlstring（必填，是待解析的url），scheme（指定默认协议），allow_fragments（是否忽略fragment，若设置为false，fragment部分会被解析为path，params， query的一部分）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">标准的url格式：</span><br><span class="line">scheme:&#x2F;&#x2F;netloc&#x2F;path;params?query#fragment</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="urlunparse"><a href="#urlunparse" class="headerlink" title="urlunparse()"></a><strong><em>urlunparse()</em></strong></h4><p>实现URL的构造，接受6个参数，不能多也不能少。当然也可以把六个参数构造为列表、元组等形式再传给urlunparse()</p>
+<h4 id="urlsplit"><a href="#urlsplit" class="headerlink" title="urlsplit()"></a><strong><em>urlsplit()</em></strong></h4><p>与urlparse()类似，不同的是它只接受5个参数，不再单独解析params这一部分，params会合并到path中</p>
+<h4 id="urlunsplit"><a href="#urlunsplit" class="headerlink" title="urlunsplit()"></a><strong><em>urlunsplit()</em></strong></h4><p>与urlunparse()类似，不同的是它只接受5个参数</p>
+<h4 id="urljoin"><a href="#urljoin" class="headerlink" title="urljoin()"></a><strong><em>urljoin()</em></strong></h4><p>有base_url作为第一个参数，新的链接作为第二个参数。base_url提供scheme、netloc、path三项内容，若新链接里不存在这三项，则使用base_url中的部分；若存在则使用新连接的部分</p>
+<h4 id="urlencode"><a href="#urlencode" class="headerlink" title="urlencode()"></a><strong><em>urlencode()</em></strong></h4><p>可以将一个字典序列化为GET请求参数</p>
+<h4 id="parse-qs"><a href="#parse-qs" class="headerlink" title="parse_qs()"></a><strong><em>parse_qs()</em></strong></h4><p>可以将一串GET请求参数反序列化为一个字典</p>
+<h4 id="parse-qsl"><a href="#parse-qsl" class="headerlink" title="parse_qsl()"></a><strong><em>parse_qsl()</em></strong></h4><p>用于将GET请求参数转化为元组组成的列表，每个元组的第一个元素是参数名，第二个元素是参数值</p>
+<h4 id="quote"><a href="#quote" class="headerlink" title="quote()"></a><strong><em>quote()</em></strong></h4><p>可以将内容转化为URL编码的格式，当URL中带有中文时，可以使用这个方法将中文字符转化为URL编码</p>
+<h4 id="unquote"><a href="#unquote" class="headerlink" title="unquote()"></a><strong><em>unquote()</em></strong></h4><p>可以对URL进行解码</p>
+<h2 id="分析Robots协议"><a href="#分析Robots协议" class="headerlink" title="分析Robots协议"></a>分析Robots协议</h2><p>robots.txt样例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">User-agent:*</span><br><span class="line">Disallow: &#x2F;</span><br><span class="line">Allow: &#x2F;public&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>其中User-agent用来指定该网站允许哪些爬虫，Disallow和Allow一般成对出现，一个指定不允许爬虫的网页，一个指定允许爬的网页。</p>
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4>]]></content>
+      <tags>
+        <tag>python spider</tag>
+      </tags>
+  </entry>
+</search>

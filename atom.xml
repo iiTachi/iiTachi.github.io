@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>梦开始的地方</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2020-01-19T11:05:22.583Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>Kirby Hao</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SpringBoot+Mybatis配置多个数据源</title>
+    <link href="http://yoursite.com/2019/05/23/SpringBoot-Mybatis%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AA%E6%95%B0%E6%8D%AE%E6%BA%90/"/>
+    <id>http://yoursite.com/2019/05/23/SpringBoot-Mybatis%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AA%E6%95%B0%E6%8D%AE%E6%BA%90/</id>
+    <published>2019-05-23T13:42:05.000Z</published>
+    <updated>2020-01-19T11:05:22.583Z</updated>
+    
+    <summary type="html">
+    
+      leader布置任务，要在一个项目中使用两个数据库，而之前用到的都是单项目单数据库，为了达成目标使出了各种百度大法，终于解决了问题，写个博客记录一
+    
+    </summary>
+    
+    
+    
+      <category term="spring" scheme="http://yoursite.com/tags/spring/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>【软件测试】实验二</title>
+    <link href="http://yoursite.com/2019/03/26/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E5%AE%9E%E9%AA%8C%E4%BA%8C/"/>
+    <id>http://yoursite.com/2019/03/26/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E5%AE%9E%E9%AA%8C%E4%BA%8C/</id>
+    <published>2019-03-26T10:05:12.000Z</published>
+    <updated>2019-03-26T10:13:38.821Z</updated>
+    
+    <summary type="html">
+    
+      “软件测试名单.xlsx” contains information about the students, and http://121.193.130.195:8800 can view someone’s information after logging in (student id as username, the last 6 digits of student id as password). Please check each record in the excel to make sure that each student’s information is consistent with the information on the website.
+    
+    </summary>
+    
+    
+    
+      <category term="Software Testing" scheme="http://yoursite.com/tags/Software-Testing/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>【软件测试】作业三</title>
+    <link href="http://yoursite.com/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%89/"/>
+    <id>http://yoursite.com/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%89/</id>
+    <published>2019-03-20T05:42:40.000Z</published>
+    <updated>2019-03-26T10:12:29.033Z</updated>
+    
+    <summary type="html">
+    
+      Use the following method printPrimes() for questions a–d.基于Junit及Eclemma（jacoco）实现一个主路径覆盖的测试
+    
+    </summary>
+    
+    
+    
+      <category term="Software Testing" scheme="http://yoursite.com/tags/Software-Testing/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>【软件测试】作业二</title>
+    <link href="http://yoursite.com/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%BA%8C/"/>
+    <id>http://yoursite.com/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%BA%8C/</id>
+    <published>2019-03-20T05:42:26.000Z</published>
+    <updated>2019-03-26T10:13:34.496Z</updated>
+    
+    <summary type="html">
+    
+      Below are two faulty programs. Each includes a test case that results in failure. Answer the following questions (in the next slide) about each program. P10，Q5
+    
+    </summary>
+    
+    
+    
+      <category term="Software Testing" scheme="http://yoursite.com/tags/Software-Testing/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>【软件测试】作业一</title>
+    <link href="http://yoursite.com/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%80/"/>
+    <id>http://yoursite.com/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%80/</id>
+    <published>2019-03-20T05:37:50.000Z</published>
+    <updated>2019-03-26T10:13:02.351Z</updated>
+    
+    <summary type="html">
+    
+      Briefly describe an error from your past projects that you have recently completed or an error from other projects which impress you most. State the reason, impact of the error , how did you find it and how to fix it.
+    
+    </summary>
+    
+    
+    
+      <category term="Software Testing" scheme="http://yoursite.com/tags/Software-Testing/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Spring boot + Vue解决跨域问题</title>
+    <link href="http://yoursite.com/2018/12/19/Spring-boot-Vue%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/"/>
+    <id>http://yoursite.com/2018/12/19/Spring-boot-Vue%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/</id>
+    <published>2018-12-19T02:54:54.000Z</published>
+    <updated>2020-01-19T10:39:25.101Z</updated>
+    
+    <summary type="html">
+    
+      使用springboot+vue进行联调运行时，出现跨域问题，记录一下解决的办法
+    
+    </summary>
+    
+    
+    
+      <category term="Vue" scheme="http://yoursite.com/tags/Vue/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>urllib库的常用方法</title>
+    <link href="http://yoursite.com/2018/12/10/urllib%E5%BA%93%E7%9A%84%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95/"/>
+    <id>http://yoursite.com/2018/12/10/urllib%E5%BA%93%E7%9A%84%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95/</id>
+    <published>2018-12-09T22:36:15.000Z</published>
+    <updated>2018-12-09T14:46:40.383Z</updated>
+    
+    <summary type="html">
+    
+      urlopen返回的response是一个HTTPResponse类型的对象，包含read(), readinto(), getheader(name), getheaders(), fileinto()等方法，以及msg, status, version, reason, debuglevel, closed等属性。
+    
+    </summary>
+    
+    
+    
+      <category term="python spider" scheme="http://yoursite.com/tags/python-spider/"/>
+    
+  </entry>
+  
+</feed>

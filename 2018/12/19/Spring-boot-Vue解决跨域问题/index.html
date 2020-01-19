@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="description" content="使用springboot+vue进行联调运行时，出现跨域问题，记录一下解决的办法" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Spring boot + Vue解决跨域问题 |  梦开始的地方
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="梦开始的地方" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Spring-boot-Vue解决跨域问题" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Spring boot + Vue解决跨域问题
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2018/12/19/Spring-boot-Vue%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2018-12-19T02:54:54.000Z" itemprop="datePublished">2018-12-19</time>
+</a>
+      
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h4 id="使用的技术框架"><a href="#使用的技术框架" class="headerlink" title="使用的技术框架"></a>使用的技术框架</h4><ul>
+<li><p>后端：Spring boot</p>
+</li>
+<li><p>前端：Vue.js</p>
+</li>
+</ul>
+<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>本地调试时，前端运行在localhost的8081端口；后台运行在8084端口，前端向后端发送请求的时候，就会出现跨域错误。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>采用反代理的方式，打开config/index.js，在module.exports中的dev加入proxyTable内容:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">proxyTable: &#123;</span><br><span class="line">      <span class="string">'/api'</span>:&#123;</span><br><span class="line">        target:<span class="string">'http://localhost:8084'</span>,</span><br><span class="line">        changerOrigin:<span class="literal">true</span>,</span><br><span class="line">        pathRewrite:&#123;</span><br><span class="line">          <span class="string">'/api'</span>: <span class="string">''</span>,</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的意思就是把api转化为<code>localhost:8084</code>，所以前端发送请求的时候将localhost：8084写成api就好了，使用代理完成从8081到8084的跨域请求。（localhost写成127.0.0.1更好一些）</p>
+<p>然后，在后端加入对跨域请求url的许可，我将这一部分写入了拦截器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">response.setHeader(<span class="string">"Access-Control-Allow-Origin"</span>, <span class="string">"*"</span>);</span><br><span class="line">response.setHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"POST, GET, OPTIONS, PUT, DELETE"</span>);</span><br><span class="line">response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"X-Requested-With,Content-Type"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的意思是在给前端的响应头中加入以下几项：</p>
+<ul>
+<li>Access-Control-Allow-Origin：允许访问资源的url，这里我设置为*，即所有url都可以访问；</li>
+<li>Access-Control-Allow-Methods：允许的方法，我设置为POST, GET, OPTIONS, PUT和DELETE；</li>
+<li>如果使用json做前后端交互，还需要加入Access-Control-Allow-Headers：X-Requested-With,Content-Type，并在前端请求时加入option emulateJSON: true</li>
+</ul>
+<p>到这里，我们本地测试的跨域问题就解决啦！前后端跑起来，成功完成请求</p>
+<p>那么这一阶段我们怎么在其他电脑上访问我们的项目呢？</p>
+<h4 id="局域网访问本地项目"><a href="#局域网访问本地项目" class="headerlink" title="局域网访问本地项目"></a>局域网访问本地项目</h4><p>连接同一个局域网并处于同一个子网下，可以直接通过我们的ip地址访问我们的主机，ip可以通过cmd输入ipconfig获取（ipv4地址即可），比如现在我的ip是172.23.79.248，理论上处于172.23.0.1网关下的所有网络都可以通过http:172.23.79.248:8081来访问我的前端项目。</p>
+<p>但是经过测试，并不能行得通，这时我们在访问主机（为讲述方便一下将我的主机成为服务端，将访问服务端的主机称为客户端），客户端打开cmd，输入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping 172.23.79.248</span><br></pre></td></tr></table></figure>
+
+<p>得到结果居然是ping的通！也就是说我们可以通过ip找到我们的主机，但是找不到我们的前端项目，怎么办呢？</p>
+<p>再一次打开index.js，将dev中的的host修改为‘0.0.0.0’（原来的内容是’localhost’）,再一次跑起来之后，发现客户端已经可以成功通过网址：172.23.79.248:8081 访问到我们机器上的项目啦！而且由于在本地解决了跨域的问题，前后端联调也没有问题！</p>
+<h4 id="部署到服务器"><a href="#部署到服务器" class="headerlink" title="部署到服务器"></a>部署到服务器</h4><p>暂时还没有将前后端部署到服务器中，未来会进行尝试并写博客来记录踩下的坑。</p>
+
+      
+      <!-- 打赏 -->
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/12/19/Spring-boot-Vue%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/" data-id="ck5kv0n9m00002su43smj404b"
+        class="article-share-link">分享</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li></ul>
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2019/03/20/%E3%80%90%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E3%80%91%E4%BD%9C%E4%B8%9A%E4%B8%80/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            【软件测试】作业一
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/12/10/urllib%E5%BA%93%E7%9A%84%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">urllib库的常用方法</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  
+  
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2015-2020
+        Kirby Hao
+      </li>
+      <li>
+        
+          Powered by
+        
+        
+        <a href="https://hexo.io" target="_blank">Hexo</a> Theme <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+    
+    <aside class="sidebar">
+      
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="梦开始的地方"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">目录</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i></p>
+  <div class="reward-box">
+    
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+			onClick: (e) => {
+      	document.getElementById(e.target.innerText).scrollIntoView()
+      	return false;
+    	}
+    });
+  </script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: false
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  
+  
+
+  </div>
+</body>
+
+</html>
